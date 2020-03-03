@@ -9,10 +9,15 @@ class Agent:
     def __init__(self, pos, color):
         self.pos = pos
         self.color = color
+        self.size = 0
+        self.render = None
+        self.translation = None
     
     def move(self, vec):
         self.pos[0] += vec[0]
         self.pos[1] += vec[1]
+
+        self.translation.set_translation(self.pos[0] * self.size, self.pos[1] * self.size)
 
 
 class Agents(EnvModule):
@@ -36,14 +41,16 @@ class Agents(EnvModule):
     
     def build_render(self, viewer, block_size):
         for agent in self.agents:
-            l = agent.pos[0] * block_size
-            r = l + block_size
-            b = agent.pos[1] * block_size
-            t = b + block_size
+            l,r,t,b = 0, block_size, block_size, 0
+            agent.size = block_size
+            agent.render = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
+            agent.render.set_color(agent.color[0], agent.color[1], agent.color[2])
 
-            current_block = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
-            current_block.set_color(agent.color[0], agent.color[1], agent.color[2])
-            viewer.add_geom(current_block)
+            agent.translation = rendering.Transform()
+            agent.render.add_attr(agent.translation)
+            agent.translation.set_translation(agent.pos[0] * block_size, agent.pos[1] * block_size)
+
+            viewer.add_geom(agent.render)
     
     def take_action(self, world, action):
         '''
@@ -52,13 +59,15 @@ class Agents(EnvModule):
             2. Update your position based on given action.
             3. Set new position in grid to 1.
 
-            args:
+            Args:
                 world (World): The world to update grid.
                 action (List): List of actions for agents to take.
 
         '''
         for index, agent in enumerate(self.agents):
-            world.placement_grid[agent.pos[0]][agent.pos[1]] = 0
-            agent.move(action[index])
-            world.placement_grid[agent.pos[0]][agent.pos[1]] = 1
+            curr_action = action[index]
+            if(world.placement_grid[agent.pos[0] + curr_action[0]][agent.pos[1] + curr_action[1]] == 0):
+                world.placement_grid[agent.pos[0]][agent.pos[1]] = 0
+                agent.move(curr_action)
+                world.placement_grid[agent.pos[0]][agent.pos[1]] = 1
 

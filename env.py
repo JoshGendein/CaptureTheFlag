@@ -35,7 +35,7 @@ class Env(gym.Env):
             if self.viewer is None:
                 self.viewer = rendering.Viewer(self.screen_size, self.screen_size)
             
-            self.world.get_render(self.viewer)
+                self.world.get_render(self.viewer)
             self.viewer.render()
         else:
             raise ValueError("Unsupported mode.")
