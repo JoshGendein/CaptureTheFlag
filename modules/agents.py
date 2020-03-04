@@ -52,22 +52,10 @@ class Agents(EnvModule):
 
             viewer.add_geom(agent.render)
     
-    def take_action(self, world, action):
-        '''
-            Three steps to take action:
-            1. Set previous position in grid to 0.
-            2. Update your position based on given action.
-            3. Set new position in grid to 1.
+    def observation_step(self, world):
+        obs = {}
+        obs['agent_pos'] = []
+        for agent in self.agents:
+            obs['agent_pos'].append(tuple(agent.pos))
 
-            Args:
-                world (World): The world to update grid.
-                action (List): List of actions for agents to take.
-
-        '''
-        for index, agent in enumerate(self.agents):
-            curr_action = action[index]
-            if(world.placement_grid[agent.pos[0] + curr_action[0]][agent.pos[1] + curr_action[1]] == 0):
-                world.placement_grid[agent.pos[0]][agent.pos[1]] = 0
-                agent.move(curr_action)
-                world.placement_grid[agent.pos[0]][agent.pos[1]] = 1
-
+        return obs
