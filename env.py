@@ -25,14 +25,18 @@ class Env(gym.Env):
         self.action_space = spaces.Discrete(5)
 
     def step(self, action):
-        assert self.action_space.contains(action)
+        actions = []
+        for agent_action in action:
+            assert self.action_space.contains(agent_action)
 
-        vec_action = self.vec_actions[action]
-        self.world.set_action([vec_action])
+            vec_action = self.vec_actions[agent_action]
+            actions.append(vec_action)
 
+        self.world.set_action(actions)
         obs = self.world.get_observation()
         reward = 0
         done = False
+        
 
         for pos in obs['agent_pos']:
             if(pos in obs['flag_pos']):
