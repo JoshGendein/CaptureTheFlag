@@ -28,7 +28,3 @@ class EnvModule():
                 env (gym.env): the environment
         '''
         return {}
-    
-    def take_action(self, world, action):
-
-        return True
