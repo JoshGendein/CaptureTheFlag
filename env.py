@@ -30,6 +30,16 @@ class Env(gym.Env):
         vec_action = self.vec_actions[action]
         self.world.set_action([vec_action])
 
+        obs = self.world.get_observation()
+        reward = 0
+        done = False
+
+        for pos in obs['agent_pos']:
+            if(pos in obs['flag_pos']):
+                done = True
+
+        return obs, reward, done, None
+
     def render(self, mode='human'):
         if mode == 'human':
             if self.viewer is None:
@@ -41,7 +51,7 @@ class Env(gym.Env):
             raise ValueError("Unsupported mode.")
 
     def reset(self):
-        self.world.get_world()
+        self.world.reset()
     
     def close(self):
         if self.viewer:
