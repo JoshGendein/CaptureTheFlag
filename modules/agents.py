@@ -17,7 +17,8 @@ class Agent:
         self.pos[0] += vec[0]
         self.pos[1] += vec[1]
 
-        self.translation.set_translation(self.pos[0] * self.size, self.pos[1] * self.size)
+        if self.translation is not None:
+            self.translation.set_translation(self.pos[0] * self.size, self.pos[1] * self.size)
 
 
 class Agents(EnvModule):
