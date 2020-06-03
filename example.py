@@ -1,29 +1,54 @@
-import numpy as np
-import time
-from environment.world import World
-from environment.env import Env
+"""
+Below are two ways to run the environment
+Comment out the way you don't plan to use before running.
+"""
 
-np.set_printoptions(threshold=np.inf)
+################################################################################
+"""
+Run the environment using the standard gym library.
+"""
 
-grid_size = 32
+import gym
+import gym_ctf
 
+env = gym.make("gym_ctf:ctf-v0")
+env.reset()
 
-env = Env(grid_size=grid_size, n_agents=1, flag_size=1)
-initial = env.reset()
-
-start = time.time()
-
-for _ in range(env.horizon): 
+done = False
+while not done:
     env.render()
-    obs, reward, done, _ = env.step([env.action_space.sample()]) # Take a random action
-    if done:
-        print("Got to the flag!")
-        env.close()
-        break
-    # time.sleep(1 / env.horizon)
+    action = env.action_space.sample() # your agent here (this takes random actions)
+    observation, reward, done, info = env.step(action)
 
 env.close()
 
-end = time.time()
+################################################################################
+"""
+Another way to run the environment is with the use of TF agents.
+"""
 
-print(end-start)
+from tf_agents.environments import suite_gym
+from tf_agents.environments import tf_py_environment
+from tf_agents.policies import random_tf_policy
+
+py_env = suite_gym.load("gym_ctf:ctf-v0")
+
+env = tf_py_environment.TFPyEnvironment(py_env)
+
+# This creates a randomly initialized policy that the agent will follow.
+# Similar to just taking random actions in the environment.
+policy = random_tf_policy.RandomTFPolicy(
+    env.time_step_spec(), 
+    env.action_spec()
+)
+
+time_step = env.reset()
+
+while not time_step.is_last():
+    action_step = policy.action(time_step)
+    time_step = env.step(action_step.action)
+    py_env.render('human') # Default for this render is rgb_array.
+
+py_env.close()
+
+################################################################################
